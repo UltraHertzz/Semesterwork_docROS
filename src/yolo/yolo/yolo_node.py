@@ -79,8 +79,11 @@ class YoloNode(Node):
         self.label_map = self.model.model.names
         res = self.model(self.cv_image)
         
-        for r in res:
-            im_array = r.plot()
+        ###
+        annotated_res = res[0].plot()
+        img_pub = self.bridge.cv2_to_imgmsg(annotated_res,'bgr8')
+        self.publisher.publish(img_pub)
+        ###
             
         # bounding_box = res[0].boxes.xyxy # Shape = (num_obj,4) 
         # box_num = bounding_box.shape[0]  # num_obj
