@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32MultiArray
-from car_driver.gpio_init import CarController
+from car_driver.gpio_init import CarController_SideTurn
 
 class CarDriver(Node):
     """
@@ -15,7 +15,7 @@ class CarDriver(Node):
 
         self.sub = self.create_subscription(Float32MultiArray, 
                                             '/controller/mux',self.call_back, 10)
-        self.car = CarController()
+        self.car = CarController_SideTurn()
 
     def call_back(self, msg):
 
