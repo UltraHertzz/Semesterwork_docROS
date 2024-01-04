@@ -139,25 +139,17 @@ class CarController_CenterTurn(CarController_Base):
     """
     In this class, the car will turn around along its center axis.
     """
+
     def __init__(self) -> None:
+
         super().__init__()
 
-    def drive_forward(self,joy_left_x, joy_left_y, init_speed):
+    def drive_forward(self, joy_left_y, init_speed):
     
         GPIO.output([31,19,13,11],False)
 
-        if joy_left_x < -0.05:      # turn left
-            x_r = 1
-            x_l = 1 + joy_left_x
-        elif joy_left_x > 0.05:     # turn right
-            x_r = 1 - joy_left_x
-            x_l = 1 
-        else:                       # tolerance for +/- 5%
-            x_r = 1
-            x_l = 1
-
-        value_l = 100 - init_speed*joy_left_y*x_l
-        value_r = 100 - init_speed*joy_left_y*x_r
+        value_l = 100 - init_speed*joy_left_y
+        value_r = 100 - init_speed*joy_left_y
 
         self.pwm_rr.duty_cycle(value_r)			
         self.pwm_rf.duty_cycle(value_r)
@@ -167,25 +159,47 @@ class CarController_CenterTurn(CarController_Base):
         # time.sleep(0.02) 
         print("Forward")
 
-    def drive_back(self, joy_left_x, joy_left_y,init_speed):
+    def drive_back(self, joy_left_y, init_speed):
 
         GPIO.output([31,33, 
                      18,19, 
                      13,16,
                      11,12], True)
         
-        if joy_left_x < -0.05:      # turn left
-            x_r = 1
-            x_l = 1 + joy_left_x
-        elif joy_left_x > 0.05:     # turn right
-            x_r = 1 - joy_left_x
-            x_l = 1 
-        else:                       # tolerance for +/- 5%
-            x_r = 1
-            x_l = 1
+        value_l = -1*init_speed*joy_left_y
+        value_r = -1*init_speed*joy_left_y
 
-        value_l = -1*init_speed*joy_left_y*x_l
-        value_r = -1*init_speed*joy_left_y*x_r
+        self.pwm_rr.duty_cycle(value_r)		
+        self.pwm_rf.duty_cycle(value_r)
+        self.pwm_lr.duty_cycle(value_l)
+        self.pwm_lf.duty_cycle(value_l)
+
+        #time.sleep(0.02) 
+        print("Backward")
+
+    def drive_left(self, joy_left_x, init_speed):
+        # x < 0
+
+        GPIO.output([31,19,13,16,11,12],[False, False, True, True, True, True])
+        
+        value_l = -1*init_speed*joy_left_x
+        value_r = 100 + init_speed*joy_left_x
+
+        self.pwm_rr.duty_cycle(value_r)		
+        self.pwm_rf.duty_cycle(value_r)
+        self.pwm_lr.duty_cycle(value_l)
+        self.pwm_lf.duty_cycle(value_l)
+
+    def drive_right(self, joy_left_x, init_speed):
+        # x > 0
+
+        GPIO.output([31,33, 
+                     18,19,
+                     13,
+                     11],[True, True, True, True, False, False])
+        
+        value_l = 100 - init_speed*joy_left_x
+        value_r = init_speed*joy_left_x
 
         self.pwm_rr.duty_cycle(value_r)		
         self.pwm_rf.duty_cycle(value_r)
@@ -193,5 +207,6 @@ class CarController_CenterTurn(CarController_Base):
         self.pwm_lf.duty_cycle(value_l)
 
 
-        #time.sleep(0.02) 
-        print("Backward")
+
+
+
