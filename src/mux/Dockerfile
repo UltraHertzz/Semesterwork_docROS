@@ -1,0 +1,19 @@
+FROM ros:humble-ros-base-jammy
+
+ENV ROS_WS=/root/ros_ws
+#WORKDIR /home/orangepi/ros2_ws
+WORKDIR $ROS_WS
+
+RUN mkdir -p $ROS_WS/src
+
+COPY ./ src/mux
+
+EXPOSE 78
+
+#RUN /bin/bash -c "apt-get update'
+
+RUN /bin/bash -c "cd $ROS_WS/ && colcon build"
+
+CMD [ "/bin/bash" ,"-c", "source ${ROS_WS}/install/setup.bash && \
+                          export ROS_DOMAIN_ID=30 && \
+                          ros2 run mux mux_node" ]
