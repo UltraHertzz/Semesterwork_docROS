@@ -49,7 +49,7 @@ class ControlPublisher(Node):
         if self.stop_flag:
             msg.data = [0.0, 0.0]
         else:
-            msg.data = [x,y]
+            msg.data = [0.2*x,0.2*y]
         self.publisher.publish(msg)
 
 

@@ -22,11 +22,11 @@ class CarDriver(Node):
         x, y = msg.data
 
         if y > 0:
-            self.car.recover()
             self.car.drive_forward(x,y,100)
-        elif y < 0:
             self.car.recover()
+        elif y < 0:
             self.car.drive_back(x,y,100)
+            self.car.recover()
         else:
             self.car.stop()
         
