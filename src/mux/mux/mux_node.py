@@ -1,7 +1,7 @@
 # if Warning is shownd, use command to set environment variable: export PATH="/home/orangepi/.local/bin:$PATH"
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String, Float32MultiArray
+from std_msgs.msg import String, Float64MultiArray
 import time
 
 
@@ -14,12 +14,12 @@ class MuxNode(Node):
     def __init__(self):
 
         super().__init__('mux_node')
-        self.js_sub = self.create_subscription(Float32MultiArray, '/controller/joy_stick',self.js_control,10)
+        self.js_sub = self.create_subscription(Float64MultiArray, '/controller/joy_stick',self.js_control,10)
         self.kb_sub = self.create_subscription(String, '/controller/key_board', self.kb_control, 10)
-        self.drive_pub = self.create_publisher(Float32MultiArray, '/controller/mux', 10)
+        self.drive_pub = self.create_publisher(Float64MultiArray, '/controller/mux', 10)
         self.mode = 'j'
-        self.kb_msg = Float32MultiArray()
-        self.js_msg = Float32MultiArray()
+        self.kb_msg = Float64MultiArray()
+        self.js_msg = Float64MultiArray()
 
     def kb_control(self, msg):
 
