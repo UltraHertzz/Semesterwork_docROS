@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray, Float64
-from car_driver.gpio_init import CarController_SideTurn
+from car_driver_localpkg.gpio_init import CarController_SideTurn
 import time
 
 class CarDriver(Node):
@@ -17,7 +17,7 @@ class CarDriver(Node):
         self.sub = self.create_subscription(Float64MultiArray, 
                                             '/controller/mux',self.call_back, 10)
         self.car = CarController_SideTurn()
-        self.time_pub = self.create_publisher(Float64,'exec_time', 10)
+        self.pub = self.create_publisher(Float64, '/exec_time', 10)
 
     def call_back(self, msg):
 
@@ -33,9 +33,9 @@ class CarDriver(Node):
             self.car.stop()
         delta_t = (time.time() - t)
         self.get_logger().info('Execution Time: "%s"' % delta_t)
-        exec_time = Float64()
-        exec_time.data = delta_t
-        self.time_pub.publish(exec_time)
+        pub_msg = Float64()
+        pub_msg.data = delta_t
+        self.pub.publish(pub_msg)
 
 def main(args=None):
 

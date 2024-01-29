@@ -1,5 +1,7 @@
-/build/
-/install/
-/.vscode/
-/log/
-/src/bno055/
+build/
+install/
+.vscode/
+log/
+src/bno055/
+src/realsense-ros/
+src/urg_node2

@@ -1,7 +1,8 @@
 import launch
 from launch import LaunchDescription
-from launch.actions import SetEnvironmentVariable
+from launch.actions import SetEnvironmentVariable, TimerAction
 from launch_ros.actions import Node
+import time
 
 def generate_launch_description():
     
@@ -29,16 +30,25 @@ def generate_launch_description():
     )
 
     car_driver_node = Node(
-        package='car_driver',
+        package='car_driver_localpkg',
         executable='drive_node',
         name='drive_node',
         output='screen'
     )
 
+    delay_launch_car_driver = TimerAction(
+        period=1.0,
+        actions=[
+            car_driver_node
+        ]
+    )
+
     return LaunchDescription([
         set_domain,
         game_pad_node,
-        key_board_node,
+        # key_board_node, # TODO : add key_board function to realize mode change
         mux_node,
-        car_driver_node
+        # insert here for one sec waiting
+        # car_driver_node # will cause problem, the driver node will not receive enough message and break out
+        delay_launch_car_driver # delay 1.0s to start driver node
     ])
