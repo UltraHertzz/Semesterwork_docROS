@@ -102,7 +102,7 @@ class CarController_SideTurn(CarController_Base):
         self.pwm_lf.duty_cycle(value_l)
 
         # time.sleep(0.02) 
-        print("Forward")
+        #print("Forward")
 
     def drive_back(self, joy_left_x, joy_left_y,init_speed):
 
@@ -130,7 +130,7 @@ class CarController_SideTurn(CarController_Base):
         self.pwm_lf.duty_cycle(value_l)
 
         #time.sleep(0.02) 
-        print("Backward")
+        #print("Backward")
 
 
 
@@ -157,7 +157,7 @@ class CarController_CenterTurn(CarController_Base):
         self.pwm_lf.duty_cycle(value_l)
 
         # time.sleep(0.02) 
-        print("Forward")
+        # print("Forward")
 
     def drive_back(self, joy_left_y, init_speed):
 
@@ -175,7 +175,7 @@ class CarController_CenterTurn(CarController_Base):
         self.pwm_lf.duty_cycle(value_l)
 
         #time.sleep(0.02) 
-        print("Backward")
+        # print("Backward")
 
     def drive_left(self, joy_left_x, init_speed):
         # x < 0
