@@ -32,7 +32,7 @@ class CarDriver(Node):
         else:
             self.car.stop()
         delta_t = (time.time() - t)
-        self.get_logger().info('Execution Time: "%s"' % delta_t)
+        #self.get_logger().info('Execution Time: "%s"' % delta_t)
         exec_time = Float64()
         exec_time.data = delta_t
         self.time_pub.publish(exec_time)

@@ -7,68 +7,98 @@ import time
 
 class MuxNode(Node):
     """
-    Mux node that receive Char message from keyboard 
+    Mux node that receive String message from keyboard 
     to switch the control source from (key_board, joy_stick, algorithms...)
+
+    - Subscribe
+        - vel_cmd:
+            - Published from: Keyboard, JoyStick, Nav2, ...
+            - Type: Float64MuliArray() [x(vel_angular), y(vel_linear), t(time)] 
+            - Description: control signals to make vehicle turn or go straight line(not that straight)
+        - mode:
+            - Published from: Keyboard
+            - Type: String() mode 
+            - Description: Change mode between different control source
+    
+    - Publish(Car Drive)
+        - vel_cmd:
+            - Publish to: Car Drive(by timer)
+            - type: Float64MuliArray [x(vel_angular), y(vel_linear), t(time)]
     """
     
     def __init__(self):
 
         super().__init__('mux_node')
-        self.js_sub = self.create_subscription(Float64MultiArray, '/controller/joy_stick',self.js_control,10)
-        self.kb_sub = self.create_subscription(String, '/controller/key_board', self.kb_control, 10)
+
+        # sub (js, kb, al, ...) 1 ... N
+        self.js_sub = self.create_subscription(Float64MultiArray, '/controller/joy_stick', self.js_control, 10)
+        self.kb_sub = self.create_subscription(Float64MultiArray, '/controller/key_board', self.kb_control, 10)
+        self.al_sub = self.create_subscription(Float64MultiArray, '/controoler/algorithm', self.al_control, 10)
+        self.mode_sub = self.create_subscription(String, 'controller/mode', self.callback, 10)
+        self.timer_pub = self.create_timer(1, self.timer_callback) # 50Hz control signal
+
+        # pub (only to driver)
         self.drive_pub = self.create_publisher(Float64MultiArray, '/controller/mux', 10)
+
+        # msg & mode
         self.mode = 'j'
         self.kb_msg = Float64MultiArray()
         self.js_msg = Float64MultiArray()
+        self.al_msg = Float64MultiArray()
 
     def kb_control(self, msg):
 
-        match msg.data:
-
-            # control value 
-            case 'w':
-                (x,y) = (0.0, 0.8)
-            case 'a':
-                (x,y) = (-0.3, 0.5)
-            case 's':
-                (x,y) = (0.3, 0.5)
-            case 'd':
-                (x,y) = (0.0, -0.3)
-
-            # mode value
-            case 'j': # joy stick control
-                self.mode = 'j'
-            case 'k': # key board control
-                self.mode = 'k'
-
-            case _:
-                (x,y) = (0.0, 0.0)
-
-        self.kb_msg.data = [x,y]
+        self.kb_msg.data = msg.data
         
     def js_control(self, msg):
 
         self.js_msg.data = msg.data
 
-    def callback(self):
+        # test
+        # self.drive_pub.publish(self.js_msg)
+
+    def al_control(self, msg):
+
+        self.al_msg.data = msg.data
+
+    def callback(self, msg):
+
         """
         call back function of mode, switch in different control mode: Keyboard, Joystick, Algorithm
         """
+        # change self.mode
+        if msg.data == 'j': # using joystick
+            self.mode = 'j'
+
+        if msg.data == 'k':
+            self.mode = 'k'
+
+        if msg.data == 'l':
+            self.mode = 'l'
+
+        # print(self.mode)
+
+    def timer_callback(self):
+
+        # publish related msg
         if self.mode == 'k':
-            #print('Control with Keyboard!')
+            self.get_logger().info('Control with KeyBoard!')
             self.drive_pub.publish(self.kb_msg)
+
         if self.mode == 'j':
-            #print("Control with Joy Con!")
+            self.get_logger().info('Control with JoyStick!')
             self.drive_pub.publish(self.js_msg)
+
+        if self.mode == 'l':
+            self.get_logger().info('Control with Algorithm!')
+            self.drive_pub.publish(self.al_msg)
 
 def main(args=None):
     rclpy.init(args=args)
     muxNode = MuxNode()
     try:
         while rclpy.ok():
-            muxNode.callback()
-            time.sleep(0.02)
-            rclpy.spin_once(muxNode, timeout_sec=0)
+            rclpy.spin(muxNode)
     except KeyboardInterrupt:
         pass
     finally:

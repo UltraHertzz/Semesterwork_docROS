@@ -46,7 +46,7 @@ class CarController_Base():
         self.pwm_lf.start_pwm()
 
         self.stop_flag = False
-
+        self.compensate_rate_rr = 1.0 # in practice the rear right wheel will be slow, change this to balance the wheel spin
 
     def stop(self):
         GPIO.output(self.enable_pin_list, False)
@@ -96,7 +96,7 @@ class CarController_SideTurn(CarController_Base):
         value_l = 100 - init_speed*joy_left_y*x_l
         value_r = 100 - init_speed*joy_left_y*x_r
 
-        self.pwm_rr.duty_cycle(value_r)			
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)			
         self.pwm_rf.duty_cycle(value_r)
         self.pwm_lr.duty_cycle(value_l)
         self.pwm_lf.duty_cycle(value_l)
@@ -124,7 +124,7 @@ class CarController_SideTurn(CarController_Base):
         value_l = -1*init_speed*joy_left_y*x_l
         value_r = -1*init_speed*joy_left_y*x_r
 
-        self.pwm_rr.duty_cycle(value_r)		
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)		
         self.pwm_rf.duty_cycle(value_r)
         self.pwm_lr.duty_cycle(value_l)
         self.pwm_lf.duty_cycle(value_l)
@@ -151,7 +151,7 @@ class CarController_CenterTurn(CarController_Base):
         value_l = 100 - init_speed*joy_left_y
         value_r = 100 - init_speed*joy_left_y
 
-        self.pwm_rr.duty_cycle(value_r)			
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)			
         self.pwm_rf.duty_cycle(value_r)
         self.pwm_lr.duty_cycle(value_l)
         self.pwm_lf.duty_cycle(value_l)
@@ -169,7 +169,7 @@ class CarController_CenterTurn(CarController_Base):
         value_l = -1*init_speed*joy_left_y
         value_r = -1*init_speed*joy_left_y
 
-        self.pwm_rr.duty_cycle(value_r)		
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)		
         self.pwm_rf.duty_cycle(value_r)
         self.pwm_lr.duty_cycle(value_l)
         self.pwm_lf.duty_cycle(value_l)
@@ -178,14 +178,15 @@ class CarController_CenterTurn(CarController_Base):
         # print("Backward")
 
     def drive_left(self, joy_left_x, init_speed):
-        # x < 0
+        # x < 0, left side backward, both pin set to true; right side forward, both pin set to false
 
-        GPIO.output([31,19,13,16,11,12],[False, False, True, True, True, True])
-        
-        value_l = -1*init_speed*joy_left_x
-        value_r = 100 + init_speed*joy_left_x
+        #GPIO.output([31,19,13,16,11,12],[False, False, True, True, True, True])
+        GPIO.output([31,33,18,19],False)
+        GPIO.output([13,16,11,12],True)
+        value_l = -1*joy_left_x*init_speed
+        value_r = 100 + joy_left_x*init_speed
 
-        self.pwm_rr.duty_cycle(value_r)		
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)		
         self.pwm_rf.duty_cycle(value_r)
         self.pwm_lr.duty_cycle(value_l)
         self.pwm_lf.duty_cycle(value_l)
@@ -193,15 +194,13 @@ class CarController_CenterTurn(CarController_Base):
     def drive_right(self, joy_left_x, init_speed):
         # x > 0
 
-        GPIO.output([31,33, 
-                     18,19,
-                     13,
-                     11],[True, True, True, True, False, False])
-        
-        value_l = 100 - init_speed*joy_left_x
-        value_r = init_speed*joy_left_x
+        #GPIO.output([31,33,18,19,13,11],[True, True, True, True, False, False])
+        GPIO.output([31,33,18,19],True)
+        GPIO.output([11,12,13,16],False)
+        value_l = 100 - joy_left_x*init_speed
+        value_r = joy_left_x*init_speed
 
-        self.pwm_rr.duty_cycle(value_r)		
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)		
         self.pwm_rf.duty_cycle(value_r)
         self.pwm_lr.duty_cycle(value_l)
         self.pwm_lf.duty_cycle(value_l)
