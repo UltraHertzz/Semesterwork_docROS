@@ -5,24 +5,38 @@ from car_driver_localpkg.gpio_init import CarController_SideTurn, CarController_
 import time
 
 class CarDriver(Node):
+
     """
-    Publication: None
-    Subscription: /mux (Float32MultiArray [x,y] which is the control value in direction of [])
-    Description: subscribe to control value that published by mux node and drive the car
+    Publication: 
+        - topic name: /exec_time
+        - type: Float64
+        - description: watch the execution time of one control command being implemented by actuator in one call
+
+    Subscription:
+        - topic name: /mux 
+        - from Node: mux
+        - type: Float64MultiArray [x,y,t]
+        - description: subscribe to control value that published by mux node and drive the car
     """
+
     def __init__(self):
 
         super().__init__('driver')
 
         self.sub = self.create_subscription(Float64MultiArray, 
                                             '/controller/mux',self.call_back, 10)
-        #self.car = CarController_SideTurn()
-        self.car = CarController_CenterTurn()
         self.pub = self.create_publisher(Float64, '/exec_time', 10)
+        
+        # Set turning mode (differential turning || axial turning)
+        # self.car = CarController_SideTurn() # Mode 1. diff turning (continous turning)
+        self.car = CarController_CenterTurn() # Mode 2. axial turning (turning separately)
+
         self.x = 0.0
         self.y = 0.0
         self.t = 0.0
+
     """
+    # This snippet is used for mode differential turning (Mode 1), uncomment when use Mode 1
     def call_back(self, msg):
 
         x, y, t = msg.data
@@ -42,6 +56,7 @@ class CarDriver(Node):
         self.pub.publish(pub_msg)
     """
 
+    # This snippet is used for mode axial turning (Mode 2), uncomment when use Mode 2
     def call_back(self, msg):
 
         self.x, self.y, self.t = msg.data
@@ -67,6 +82,7 @@ class CarDriver(Node):
         pub_msg = Float64()
         pub_msg.data = delta_t
         self.pub.publish(pub_msg)
+        
 def main(args=None):
 
     rclpy.init(args=args)

@@ -49,7 +49,7 @@ def generate_launch_description():
     )
     return LaunchDescription([
         set_domain,
-        # game_pad_node,
+        game_pad_node,
         # key_board_node,
         mux_node,
         #car_driver_node
