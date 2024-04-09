@@ -61,11 +61,10 @@ class MuxNode(Node):
     def al_control(self, msg):
         
         # subscribe /cmd_vel( type : geometry_msgs/msg/Twist )
-        al_y = msg.data.linear.x
-        al_x = msg.data.angular.z
+        al_y = msg.linear.x
+        al_x = msg.angular.z
         al_t = time.time()
-        al_msg.data = [al_x, al_y, al_t]
-        self.al_msg.data = msg.data
+        self.al_msg.data = [al_x, al_y, al_t]
 
     def callback(self, msg):
 
