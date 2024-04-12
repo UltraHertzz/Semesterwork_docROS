@@ -35,10 +35,36 @@ class ControlPublisher(Node):
         super().__init__("game_pad")
         self.publisher = self.create_publisher(Float64MultiArray, 
                                                '/controller/joy_stick', 10)
+        self.pub_time_period = 0.02  # 50Hz
+        self.timer = self.create_timer(self.pub_time_period, self.timer_callback)
         self.joy = Joystick()
         self.stop_flag = False
 
+    def timer_callback(self) -> None:
+        # publish controll topic with a fixed rate 
+        if self.joy.B():
+            self.stop_flag = True
+        if self.joy.A():
+            self.stop_flag = False
+
+        msg = Float64MultiArray()
+
+        x, y = self.joy.leftStick()
+        t = time.time()
+
+        if self.stop_flag:
+            msg.data = [0.0, 0.0, t]
+        else:
+            msg.data = [0.25*x, 0.25*y, t]
+
+        self.publisher.publish(msg)
+
+    """
+
     def publishment(self) -> None:
+
+        # To publish topic as fast as possible (rate: 4000Hz)
+
         while rclpy.ok():
 
             if self.joy.B():
@@ -54,14 +80,21 @@ class ControlPublisher(Node):
                 msg.data = [0.25*x, 0.25*y, t]
             self.publisher.publish(msg)
             rclpy.spin_once(self, timeout_sec=0)
-
+            time.sleep(0.02)
+    """
 def main(args=None):
     rclpy.init(args=args)
     print('Publish Joystick Control Value')
     pub = ControlPublisher()
-    pub.publishment()
+
+    rclpy.spin(pub)
+    # pub.publishment()
+
     pub.destroy_node()
     rclpy.shutdown()
+
+
+
 
 
 if __name__ == '__main__':

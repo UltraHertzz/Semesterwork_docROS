@@ -58,8 +58,11 @@ class CarDriver(Node):
 
     # This snippet is used for mode axial turning (Mode 2), uncomment when use Mode 2
     def call_back(self, msg):
-
-        self.x, self.y, self.t = msg.data
+        try:
+            self.x, self.y, self.t = msg.data
+        except ValueError as e:
+            self.get_logger().warn('Received incomplete message, ignoring.')
+            # self.x, self.y, self.t = 0.0, 0.0, 0.0
         if self.x > 0:
             print("tern right")
             self.car.drive_right(self.x,100)
