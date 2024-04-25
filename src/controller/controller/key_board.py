@@ -11,7 +11,7 @@ class ControlPublisher(Node):
     def __init__(self) -> None:
         super().__init__("game_pad")
         self.control_pub = self.create_publisher(Float64MultiArray, '/controller/key_board', 10)
-        self.mode_pub = self.create_publisher(String, 'controller/mode',1)
+        self.mode_pub = self.create_publisher(String, '/controller/mode',1)
         timer_period = 0.02
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.mode = 'j'

@@ -89,59 +89,54 @@ class CarController_SideTurn(CarController_Base):
     def __init__(self) -> None:
         
         super().__init__()
+        self.wheel_separation = 0.14
 
-    def drive_forward(self,joy_left_x, joy_left_y, init_speed):
+    def left_drive_forward(self, desired_speed, init_speed):
     
-        GPIO.output([31,19,13,11],False)
+        GPIO.output([13,11],False)
 
-        if joy_left_x < -0.05:      # turn left
-            x_r = 1
-            x_l = 1 + joy_left_x
-        elif joy_left_x > 0.05:     # turn right
-            x_r = 1 - joy_left_x
-            x_l = 1 
-        else:                       # tolerance for +/- 5%
-            x_r = 1
-            x_l = 1
+        value_l = 100 - init_speed*desired_speed
 
-        value_l = 100 - init_speed*joy_left_y*x_l
-        value_r = 100 - init_speed*joy_left_y*x_r
-
-        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)			
-        self.pwm_rf.duty_cycle(self.compensate_rate_rf*value_r)
         self.pwm_lr.duty_cycle(self.compensate_rate_lr*value_l)
         self.pwm_lf.duty_cycle(self.compensate_rate_lf*value_l)
 
         # time.sleep(0.02) 
         #print("Forward")
 
-    def drive_back(self, joy_left_x, joy_left_y,init_speed):
+    def left_drive_back(self, desired_speed,init_speed):
 
-        GPIO.output([31,33, 
-                     18,19, 
-                     13,16,
+        GPIO.output([13,16,
                      11,12], True)
         
-        if joy_left_x < -0.05:      # turn left
-            x_r = 1
-            x_l = 1 + joy_left_x
-        elif joy_left_x > 0.05:     # turn right
-            x_r = 1 - joy_left_x
-            x_l = 1 
-        else:                       # tolerance for +/- 5%
-            x_r = 1
-            x_l = 1
 
-        value_l = -1*init_speed*joy_left_y*x_l
-        value_r = -1*init_speed*joy_left_y*x_r
+        value_l = -1*init_speed*desired_speed
 
-        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)		
-        self.pwm_rf.duty_cycle(self.compensate_rate_rf*value_r)
         self.pwm_lr.duty_cycle(self.compensate_rate_lr*value_l)
         self.pwm_lf.duty_cycle(self.compensate_rate_lf*value_l)
 
         #time.sleep(0.02) 
         #print("Backward")
+    def right_drive_forward(self, desired_speed, init_speed):
+    
+        GPIO.output([31,19],False)
+
+        value_r = 100 - init_speed*desired_speed
+
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)			
+        self.pwm_rf.duty_cycle(self.compensate_rate_rf*value_r)
+
+        # time.sleep(0.02) 
+        #print("Forward")
+
+    def right_drive_back(self, desired_speed ,init_speed):
+
+        GPIO.output([31,33, 
+                     18,19], True)
+        
+        value_r = -1*init_speed*desired_speed
+
+        self.pwm_rr.duty_cycle(self.compensate_rate_rr*value_r)		
+        self.pwm_rf.duty_cycle(self.compensate_rate_rf*value_r)
 
 
 

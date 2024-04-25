@@ -25,27 +25,56 @@ Example usage:
 import time
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64MultiArray, Float64
+from std_msgs.msg import Float64MultiArray, Float64, String
 from controller.xbox import Joystick
 
 
 class ControlPublisher(Node):
+    """
+    Node:
+        - name: Game pad controller
+        - function:
+            - B button: stop car
+            - A button: restart car
+            - X button: manual control mode
+            - Y button: autonomous driving mode
+            - Left stick: driving signal
+        - Subscription: None
+        - Publisher: 
+            - /controller/joy_stick
+                - type: Float64MultiArray
+                - description: publish control value and time
+            - /controller/mode
+                - type: String
+                - description: publish mode, j for joy-con, l for self navigation
+    """
 
     def __init__(self) -> None:
         super().__init__("game_pad")
         self.publisher = self.create_publisher(Float64MultiArray, 
                                                '/controller/joy_stick', 10)
+        self.mode_pub = self.create_publisher(String,'/controller/mode', 10)
         self.pub_time_period = 0.02  # 50Hz
         self.timer = self.create_timer(self.pub_time_period, self.timer_callback)
         self.joy = Joystick()
         self.stop_flag = False
+        self.spd_rate = 0.25
+        self.mode = 'j'
 
     def timer_callback(self) -> None:
-        # publish controll topic with a fixed rate 
+        # publish controll topic with a fixed rate
         if self.joy.B():
             self.stop_flag = True
         if self.joy.A():
             self.stop_flag = False
+        if self.joy.X():
+            self.mode = 'j'
+        if self.joy.Y():
+            self.mode = 'l'
+        
+        mode_msg = String()
+        mode_msg.data = self.mode
+        self.mode_pub.publish(mode_msg)
 
         msg = Float64MultiArray()
 
@@ -55,12 +84,11 @@ class ControlPublisher(Node):
         if self.stop_flag:
             msg.data = [0.0, 0.0, t]
         else:
-            msg.data = [0.25*x, 0.25*y, t]
+            msg.data = [self.spd_rate*x, self.spd_rate*y, t]
 
         self.publisher.publish(msg)
 
     """
-
     def publishment(self) -> None:
 
         # To publish topic as fast as possible (rate: 4000Hz)
@@ -77,11 +105,12 @@ class ControlPublisher(Node):
             if self.stop_flag:
                 msg.data = [0.0, 0.0, t]
             else:
-                msg.data = [0.25*x, 0.25*y, t]
+                msg.data = [self.spd_rate*x, self.spd_rate*y, t]
             self.publisher.publish(msg)
             rclpy.spin_once(self, timeout_sec=0)
-            time.sleep(0.02)
+            # time.sleep(0.02)
     """
+
 def main(args=None):
     rclpy.init(args=args)
     print('Publish Joystick Control Value')
@@ -92,10 +121,6 @@ def main(args=None):
 
     pub.destroy_node()
     rclpy.shutdown()
-
-
-
-
 
 if __name__ == '__main__':
     main()

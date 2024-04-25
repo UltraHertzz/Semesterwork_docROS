@@ -28,34 +28,49 @@ class CarDriver(Node):
         self.pub = self.create_publisher(Float64, '/exec_time', 10)
         
         # Set turning mode (differential turning || axial turning)
-        # self.car = CarController_SideTurn() # Mode 1. diff turning (continous turning)
-        self.car = CarController_CenterTurn() # Mode 2. axial turning (turning separately)
+        self.car = CarController_SideTurn() # Mode 1. diff turning (continous turning)
+        # self.car = CarController_CenterTurn() # Mode 2. axial turning (turning separately)
 
         self.x = 0.0
         self.y = 0.0
         self.t = 0.0
 
-    """
+    
     # This snippet is used for mode differential turning (Mode 1), uncomment when use Mode 1
     def call_back(self, msg):
 
         x, y, t = msg.data
+        v_left = y + x
+        v_right = y - x
+        # print("v_left= %d, v_right= %d", (v_left, v_right))
 
-        if y > 0:
-            self.car.drive_forward(x,y,100)
+        if v_left >= 0 and v_right >= 0:
+            self.car.left_drive_forward(min(v_left,1), 100)
+            self.car.right_drive_forward(min(v_right,1), 100)
+            #self.car.recover()
+        elif v_left <= 0 and v_right <= 0:
+            self.car.left_drive_back(max(v_left,-1), 100)
+            self.car.right_drive_back(max(v_right,-1), 100)
+            #self.car.recover()
+        elif v_left >= 0 and v_right <= 0:
+            self.car.left_drive_forward(min(v_left,1), 100)
+            self.car.right_drive_back(max(v_right,-1), 100)
             self.car.recover()
-        elif y < 0:
-            self.car.drive_back(x,y,100)
+        elif v_left <=0 and v_right >=0:
+            self.car.left_drive_back(max(v_left,-1), 100)
+            self.car.right_drive_forward(min(v_right,1), 100)
             self.car.recover()
         else:
             self.car.stop()
+
         delta_t = (time.time() - t)
         #self.get_logger().info('Execution Time: "%s"' % delta_t)
         pub_msg = Float64()
         pub_msg.data = delta_t
         self.pub.publish(pub_msg)
-    """
+    
 
+    """
     # This snippet is used for mode axial turning (Mode 2), uncomment when use Mode 2
     def call_back(self, msg):
         try:
@@ -85,7 +100,8 @@ class CarDriver(Node):
         pub_msg = Float64()
         pub_msg.data = delta_t
         self.pub.publish(pub_msg)
-        
+    """
+
 def main(args=None):
 
     rclpy.init(args=args)

@@ -16,10 +16,10 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-FROM ros:humble-ros-core-jammy
-ENV ROS_WS=/root/ros_ws
-WORKDIR ${ROS_WS}
-COPY --from=builder ${ROS_WS}/install ${ROS_WS}/install
+# FROM ros:humble-ros-core-jammy
+# ENV ROS_WS=/root/ros_ws
+# WORKDIR ${ROS_WS}
+# COPY --from=builder ${ROS_WS}/install ${ROS_WS}/install
 
 CMD [ "/bin/bash" ,"-c", "source ${ROS_WS}/install/setup.bash && \
                           export ROS_DOMAIN_ID=30 && \
