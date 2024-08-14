@@ -72,7 +72,12 @@ class MuxNode(Node):
         
         # subscribe /cmd_vel( type : geometry_msgs/msg/Twist )
         al_y = msg.linear.x
-        al_x = msg.angular.z * 0.25
+        # al_x = -1 * msg.angular.z * 0.25
+        al_x = -1 * msg.angular.z * 0.35
+        # al_x = -1 * msg.angular.z * 0.5
+
+
+
         al_t = time.time()
         self.al_msg.data = [al_x, al_y, al_t]
         if self.mode == "l":

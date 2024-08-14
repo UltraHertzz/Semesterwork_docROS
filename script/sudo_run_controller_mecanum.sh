@@ -10,4 +10,4 @@ mkdir -p $HOME/ros2_ws/log/runtime/bare_matel
 echo control with pc
 echo "exec start time: $(date +"%s.%N")" >> $LOG_FILE_PATH
 cd $HOME/ros2_ws
-sudo bash -c "source /home/orangepi/ros2_ws/install/setup.bash && ros2 launch controller remote_control_pi.launch.py >> $LOG_FILE_PATH"
+sudo bash -c "source /home/orangepi/ros2_ws/install/setup.bash && ros2 launch controller control_mecanum.launch.py >> $LOG_FILE_PATH"

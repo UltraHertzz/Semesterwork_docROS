@@ -11,7 +11,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/control.launch.py']),
-        ('share/' + package_name + '/launch', ['launch/remote_control_pi.launch.py'])
+        ('share/' + package_name + '/launch', ['launch/remote_control_pi.launch.py']),
+        ('share/' + package_name + '/launch', ['launch/control_mecanum.launch.py'])
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -23,7 +24,8 @@ setup(
     entry_points={
         'console_scripts': [
             'game_pad_node = controller.game_pad:main',
-            'key_board_node = controller.key_board:main'
+            'key_board_node = controller.key_board:main',
+            'mecanum = controller.game_pad_mecanum:main'
         ],
     },
 )

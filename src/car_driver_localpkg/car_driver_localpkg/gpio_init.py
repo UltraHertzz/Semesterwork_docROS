@@ -83,6 +83,7 @@ class CarController_Base():
 class CarController_SideTurn(CarController_Base):
 
     """
+    differential turning method
     In this class, the car will turn base on speed difference between two sides of the wheel.
     """
 
@@ -226,6 +227,68 @@ class CarController_CenterTurn(CarController_Base):
         self.pwm_lf.duty_cycle(value_lf)
 
 
+class CarController_Mecanum(CarController_Base):
+
+    """
+    mechanum driving 
+    In this class, the car will turn base on mecanum mechanism, which offers translating in plane and rotation
+    """
+
+    def __init__(self) -> None:
+        
+        super().__init__()
+        self.wheel_separation = 0.14
 
 
+    def left_front_wheel(self, desired_speed, init_speed):
+
+        if desired_speed > 0:
+            GPIO.output([11], False)
+            value = 100 - init_speed*desired_speed
+            self.pwm_lf.duty_cycle(self.compensate_rate_lf*value)
+        elif desired_speed < 0:
+            GPIO.output([11,12], True)
+            value = -1*init_speed*desired_speed
+            self.pwm_lf.duty_cycle(self.compensate_rate_lf*value)
+        else:
+            self.stop()
+
+    def left_rear_wheel(self, desired_speed, init_speed):
+        
+        if desired_speed > 0:
+            GPIO.output([13], False)
+            value = 100 - init_speed*desired_speed
+            self.pwm_lr.duty_cycle(self.compensate_rate_lr*value)
+        elif desired_speed < 0:
+            GPIO.output([13,16], True)
+            value = -1*init_speed*desired_speed
+            self.pwm_lr.duty_cycle(self.compensate_rate_lr*value)
+        else:
+            self.stop()
+
+    def right_front_wheel(self, desired_speed, init_speed):
+
+        if desired_speed > 0:
+            GPIO.output([19], False)
+            value = 100 - init_speed*desired_speed
+            self.pwm_rf.duty_cycle(self.compensate_rate_rf*value)
+        elif desired_speed < 0:
+            GPIO.output([18,19], True)
+            value = -1*init_speed*desired_speed
+            self.pwm_rf.duty_cycle(self.compensate_rate_rf*value)
+        else:
+            self.stop()
+
+    def right_rear_wheel(self, desired_speed, init_speed):
+
+        if desired_speed > 0:
+            GPIO.output([31], False)
+            value = 100 - init_speed*desired_speed
+            self.pwm_rr.duty_cycle(self.compensate_rate_rr*value)
+        elif desired_speed < 0:
+            GPIO.output([31,33], True)
+            value = -1*init_speed*desired_speed
+            self.pwm_rr.duty_cycle(self.compensate_rate_rf*value)
+        else:
+            self.stop()
 

@@ -32,13 +32,14 @@ from controller.xbox import Joystick
 class ControlPublisher(Node):
     """
     Node:
-        - name: Game pad controller
+        - name: Game pad controller for mechanum control
         - function:
             - B button: stop car
             - A button: restart car
             - X button: manual control mode
             - Y button: autonomous driving mode
             - Left stick: driving signal
+            - Right stick: turning in mecanum 
         - Subscription: None
         - Publisher: 
             - /controller/joy_stick
@@ -46,9 +47,7 @@ class ControlPublisher(Node):
                 - description: publish control value and time
             - /controller/mode
                 - type: String
-                - description: publish mode, 
-                    j for joy-con, 
-                    l for self navigation or any other algorithm that could produce cmd_vel in [x, y] form
+                - description: publish mode, j for joy-con, l for self navigation
     """
 
     def __init__(self) -> None:
@@ -70,9 +69,9 @@ class ControlPublisher(Node):
         if self.joy.A():
             self.stop_flag = False
         if self.joy.X():
-            self.mode = 'j' # joy stick mode (Manual Control)
+            self.mode = 'j' # joy stick mode
         if self.joy.Y():
-            self.mode = 'l' # algorithm testing mode (Automatic Control)
+            self.mode = 'l' # algorithm
         
         mode_msg = String()
         mode_msg.data = self.mode
@@ -80,13 +79,14 @@ class ControlPublisher(Node):
 
         msg = Float64MultiArray()
 
-        x, y = self.joy.leftStick()
+        x_l, y_l = self.joy.leftStick()
+        x_r, _ = self.joy.rightStick()
         t = time.time()
 
         if self.stop_flag:
-            msg.data = [0.0, 0.0, t]
+            msg.data = [0.0, 0.0, 0.0, t]
         else:
-            msg.data = [self.spd_rate*x, self.spd_rate*y, t]
+            msg.data = [self.spd_rate*x_l, self.spd_rate*y_l, self.spd_rate*x_r, t]
 
         self.publisher.publish(msg)
 

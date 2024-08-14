@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'car_driver_localpkg'
+package_name = 'image_compress'
 
 setup(
     name=package_name,
@@ -14,14 +14,13 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='orangepi',
-    maintainer_email='orangepi@tumi6.de',
-    description='car driver',
-    license='Apache-2.0',
+    maintainer_email='li15210382115@gmail.com',
+    description='TODO: Package description',
+    license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'drive_node = car_driver_localpkg.driver_node:main',
-            'mecanum = car_driver_localpkg.driver_node_mecanum:main'
+            'image_compress_node = image_compress.image_compress_node:main'
         ],
     },
 )
